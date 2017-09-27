@@ -16,7 +16,7 @@ class AuthorsController extends Controller
 
     public function index()
     {
-        $authors = Author::with('country')->paginate(config('database.records_per_page'));
+        $authors = Author::with('country')->orderBy('surname')->paginate(config('database.records_per_page'));
 
         return view('authors.index', compact('authors'));
     }

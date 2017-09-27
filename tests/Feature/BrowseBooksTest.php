@@ -62,4 +62,17 @@ class BrowseBooksTest extends TestCase
             ->assertSee($book->title)
             ->assertDontSee($anotherBook->title);
     }
+
+    /** @test */
+    public function it_can_sort_books_by_its_title_in_ascending_order()
+    {
+        $book = create(\App\Book::class, ['title' => 'The Witcher']);
+        $anotherBook = create(\App\Book::class, ['title' => 'Fight Club']);
+
+        $response = $this->getJson('/books?sort=title&direction=asc')->json();
+
+        $titles = array_pluck($response['data'], 'title');
+
+        $this->assertEquals([$anotherBook->title, $book->title], $titles);
+    }
 }

@@ -15,12 +15,11 @@ class BooksFilter extends Filters
         'publish_date'
     ];
 
-    /**
-     * @return mixed
-     */
     function defaultOrderBy()
     {
-        return ['publish_date' => 'desc'];
+        return [
+            'publish_date' => 'desc'
+        ];
     }
 
     protected function author($string)

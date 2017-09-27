@@ -3,7 +3,7 @@
 @section('content')
 
     <div class="text-right">
-        <a class="btn btn-success" href="{{ route('authors.create') }}">Add an author</a>
+        <a class="btn btn-success" href="{{ route('authors.create') }}">{{ trans('strings.add_author_button_caption') }}</a>
     </div>
 
     <hr>
@@ -11,8 +11,8 @@
     @if($authors->count())
         <table class="table">
             <tr>
-                <th>Author</th>
-                <th>Country</th>
+                <th>{{ trans('strings.author_listing_table_header') }}</th>
+                <th>{{ trans('strings.country_listing_table_header') }}</th>
                 <th class="fit">&nbsp;</th>
             </tr>
 
@@ -25,10 +25,12 @@
             @endforeach
 
         </table>
+
+        {{ $authors->links() }}
     @else
 
         @include('_partials.no_records', [
-            'message' => 'No authors found.'
+            'message' => trans('strings.no_authors_found_message')
         ])
 
     @endif

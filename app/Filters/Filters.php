@@ -6,23 +6,35 @@ use Illuminate\Http\Request;
 
 abstract class Filters
 {
-	protected $request;
+    const SORT_BY_COLUMN_KEY = 'sort';
 
-	protected $builder;
+    const SORT_ORDER_KEY = 'direction';
 
-	protected $filters;
+    const ASC_ORDER_KEY = 'asc';
 
-	public function __construct(Request $request)
+    const DESC_ORDER_KEY = 'desc';
+
+    protected $request;
+
+    protected $builder;
+
+    protected $filters;
+
+    protected $sortables;
+
+    public function __construct(Request $request)
 	{
 		$this->request = $request;
 	}
 
-	public function apply($builder)
+    abstract function defaultOrderBy();
+
+    public function apply($builder)
 	{
 		$this->builder = $builder;
 
 		foreach ($this->getFilters() as $filter => $value) {
-			if (method_exists($this, $filter)) {
+			if (method_exists($this, $filter) && strlen($value)) {
 				$this->$filter($value);
 			}
 		}
@@ -32,7 +44,7 @@ abstract class Filters
 		return $this->builder;
 	}
 
-	public function getFilters()
+    public function getFilters()
 	{
 		return array_only($this->request->all(), $this->filters);
 	}
@@ -43,10 +55,7 @@ abstract class Filters
 
             return $this->builder->orderBy($this->request->input('sort'), $this->request->input('direction'));
 
-        $column = key($this->defaultOrderBy());
-        $direction = $this->defaultOrderBy()[$column];
-
-        return $this->builder->orderBy($column, $direction);
+        return $this->builder->orderBy($this->getDefaultSortColumn(), $this->getDefaultSortDirection());
     }
 
     private function hasSortParameters()
@@ -56,28 +65,41 @@ abstract class Filters
             && in_array($this->request->input('sort'), $this->sortables);
     }
 
-    abstract function defaultOrderBy();
-
-    public function sortByLink($column, $link_body, $route, array $route_params = [])
+    private function getDefaultSortColumn()
     {
-        if (request('sort') == $column AND request('direction') == 'asc')
-            $direction = 'desc';
-        else if ( (! request('sort') || ! request('direction')) && ! empty($default))
-            $direction  = ($default == 'desc') ? 'asc' : 'desc';
-        else
-            $direction = 'asc';
+        return key($this->defaultOrderBy());
+    }
 
-        if (request('sort') == $column)
+    private function getDefaultSortDirection()
+    {
+        return $this->defaultOrderBy()[$this->getDefaultSortColumn()];
+    }
+
+    public function url($route, $column, $link_body, array $route_params = [])
+    {
+        if ( ! $this->hasSortParameters())
+            $direction = ($this->getDefaultSortColumn() == $column && $this->getDefaultSortDirection() == 'desc')
+                ? 'asc'
+                : 'desc';
+
+        else if ($this->request->get('sort') == $column && $this->request->get('direction') == 'asc')
+            $direction = 'desc';
+
+        else $direction = 'asc';
+
+
+        if ($this->request->get('sort') == $column)
             $sort_class = ($direction == 'desc') ? 'asc' : 'desc';
-        else if ( ! request('sort') && ! empty($default))
-            $sort_class = $default;
+        else if ( ! $this->request->get('sort') && $column == $this->getDefaultSortColumn())
+            $sort_class = $this->getDefaultSortDirection();
         else
             $sort_class = '';
 
-        $array = ['sort' => $column, 'direction' => $direction];
-        $request = request()->except(['sort', 'direction']);
 
-        $params = array_merge($route_params, $array, $request);
+        $sort_params = ['sort' => $column, 'direction' => $direction];
+        $request = $this->request->except(['sort', 'direction']);
+
+        $params = array_merge($route_params, $sort_params, $request);
 
         return link_to_route($route, $link_body, $params, ['class' => $sort_class]);
 	}

@@ -19,8 +19,8 @@
         <div class="collapse navbar-collapse" id="app-navbar-collapse">
             <!-- Left Side Of Navbar -->
             <ul class="nav navbar-nav">
-                <li><a href="{{ route('authors.index') }}">Authors</a></li>
-                <li><a href="{{ route('books.index') }}">Books</a></li>
+                <li><a href="{{ route('authors.index') }}">{{ trans('strings.authors_nav_link') }}</a></li>
+                <li><a href="{{ route('books.index') }}">{{ trans('strings.books_nav_link') }}</a></li>
             </ul>
 
             <!-- Right Side Of Navbar -->
@@ -28,8 +28,8 @@
 
                 <!-- Authentication Links -->
                 @guest
-                    <li><a href="{{ route('login') }}">Login</a></li>
-                    <li><a href="{{ route('register') }}">Register</a></li>
+                    <li><a href="{{ route('login') }}">{{ trans('strings.login_nav_link') }}</a></li>
+                    <li><a href="{{ route('register') }}">{{ trans('strings.register_nav_link') }}</a></li>
                 @else
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -41,7 +41,7 @@
                                 <a href="{{ route('logout') }}"
                                     onclick="event.preventDefault();
                                              document.getElementById('logout-form').submit();">
-                                    Logout
+                                    {{ trans('strings.logout_nav_link') }}
                                 </a>
 
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

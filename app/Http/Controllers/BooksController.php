@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Author;
 use App\Book;
 use App\Country;
@@ -20,12 +19,16 @@ class BooksController extends Controller
     {
         $books = Book::filter($filter)->paginate(config('database.records_per_page'));
 
+        if (\request()->wantsJson()) {
+            return $books;
+        }
+
         return view('books.index', compact('books'));
     }
 
     public function create()
     {
-        $authors = Author::orderBy('surname', 'name')->get();
+        $authors = Author::orderBy('surname')->get();
         $countries = Country::orderBy('name')->get();
 
         return view('books.create', compact('authors', 'countries'));
